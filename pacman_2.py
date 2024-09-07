@@ -7,6 +7,7 @@ screen = pygame.display.set_mode((800, 600), 0)
 
 AMARELO = (255, 255, 0) # seus valores (RGB)
 PRETO = (0, 0, 0) # ausencia de cores
+VELOCIDADE = 1
 
 #criando a classe pacman
 class Pacman:
@@ -16,10 +17,10 @@ class Pacman:
         self.linha = 1  # posicao inicial do pacman
         self.centro_x = 400 # meio da tela - largura
         self.centro_y = 300 # meio da tela - altura
-        self.tamanho = 800 // 10
+        self.tamanho = 800 // 30
         self.raio = self.tamanho // 2 # raio = metade do tamanho do círculo
-        self.vel_x = 1
-        self.vel_y = 1
+        self.vel_x = 0 # iniciando parado
+        self.vel_y = 0
 
     def calcular_regras(self): # regras do pacman para andar
         self.coluna = self.coluna + self.vel_x # muda posicao, coluna
@@ -27,21 +28,8 @@ class Pacman:
         self.centro_x = int(self.coluna * self.tamanho + self.raio)
         self.centro_y = int(self.linha * self.tamanho + self.raio)
 
-       # self.centro_x = self.centro_x + self.vel_x
-       # self.centro_y = self.centro_y + self.vel_y
-
-        # testes de colisão
-        if(self.centro_x + self.raio > 800):
-            self.vel_x = -1
-        if(self.centro_x - self.raio < 0):
-            self.vel_x = 1
-        if(self.centro_y + self.raio > 600):
-            self.vel_y = -1
-        if(self.centro_y - self.raio < 0):
-            self.vel_y = 1
-
     # Chamando o metodo pintar, para desenhar o pacman na tela
-    def pintar(self, tela): # recebe uma surface chamada tela
+    def desenhar_pacman(self, tela): # recebe uma surface chamada tela
         # desenhando um círculo amarelo (pacman)
         pygame.draw.circle(tela, AMARELO, (self.centro_x, self.centro_y), self.raio, 0)
 
@@ -59,6 +47,30 @@ class Pacman:
         olho_raio = int(self.raio / 8)
         pygame.draw.circle(tela, PRETO, (olho_x, olho_y), olho_raio, 0)
 
+
+    def processa_eventos(self, eventos):
+        for e in eventos: # testando as teclas
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_RIGHT:
+                    self.vel_x = VELOCIDADE
+                elif e.key == pygame.K_LEFT:
+                    self.vel_x = -VELOCIDADE
+                elif e.key == pygame.K_UP:
+                    self.vel_y = -VELOCIDADE
+                elif e.key == pygame.K_DOWN:
+                    self.vel_y = VELOCIDADE
+
+            elif e.type == pygame.KEYUP:
+                if e.key == pygame.K_RIGHT:
+                    self.vel_x = 0
+                elif e.key == pygame.K_LEFT:
+                    self.vel_x = 0
+                elif e.key == pygame.K_UP:
+                    self.vel_y = 0
+                elif e.key == pygame.K_DOWN:
+                    self.vel_y = 0
+
+
 if __name__ == "__main__":
     pacman = Pacman()
 
@@ -68,17 +80,13 @@ if __name__ == "__main__":
 
         # Pintar a tela
         screen.fill(PRETO) # limpa tela
-        pacman.pintar(screen) # desenha o pacman na tela
+        pacman.desenhar_pacman(screen) # desenha o pacman na tela
         pygame.display.update() # atualiza
         pygame.time.delay(100)
 
         # Capturar os eventos
-
-        for e in pygame.event.get():
+        eventos = pygame.event.get()
+        for e in eventos:
             if e.type == pygame.QUIT:
                 exit()
-
-
-# (self.centro_x + raio) -> fica totalmente a direita
-# self.centro_x + self.raio -> pq fica mais para a direita
-# self.centro_y - self.raio -> pq fica mais pra cima
+            pacman.processa_eventos(eventos)
