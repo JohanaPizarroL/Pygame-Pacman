@@ -8,15 +8,39 @@ screen = pygame.display.set_mode((800, 600), 0)
 AMARELO = (255, 255, 0) # seus valores (RGB)
 PRETO = (0, 0, 0) # ausencia de cores
 
-#criando a classe
+#criando a classe pacman
 class Pacman:
     def __init__(self):
+
+        self.coluna = 1
+        self.linha = 1  # posicao inicial do pacman
         self.centro_x = 400 # meio da tela - largura
         self.centro_y = 300 # meio da tela - altura
-        self.tamanho = 100 #pixels
-        self.raio = int(self.tamanho / 2) # raio = metade do tamanho do círculo
+        self.tamanho = 800 // 10
+        self.raio = self.tamanho // 2 # raio = metade do tamanho do círculo
+        self.vel_x = 1
+        self.vel_y = 1
 
-    # chamando o metodo pintar, para desenhar o pacman na tela
+    def calcular_regras(self): # regras do pacman para andar
+        self.coluna = self.coluna + self.vel_x # muda posicao, coluna
+        self.linha = self.linha + self.vel_y   # muda posicao, linha
+        self.centro_x = int(self.coluna * self.tamanho + self.raio)
+        self.centro_y = int(self.linha * self.tamanho + self.raio)
+
+       # self.centro_x = self.centro_x + self.vel_x
+       # self.centro_y = self.centro_y + self.vel_y
+
+        # testes de colisão
+        if(self.centro_x + self.raio > 800):
+            self.vel_x = -1
+        if(self.centro_x - self.raio < 0):
+            self.vel_x = 1
+        if(self.centro_y + self.raio > 600):
+            self.vel_y = -1
+        if(self.centro_y - self.raio < 0):
+            self.vel_y = 1
+
+    # Chamando o metodo pintar, para desenhar o pacman na tela
     def pintar(self, tela): # recebe uma surface chamada tela
         # desenhando um círculo amarelo (pacman)
         pygame.draw.circle(tela, AMARELO, (self.centro_x, self.centro_y), self.raio, 0)
@@ -39,9 +63,16 @@ if __name__ == "__main__":
     pacman = Pacman()
 
     while True:
+        # Calular as regras
+        pacman.calcular_regras()
+
         # Pintar a tela
-        pacman.pintar(screen)
-        pygame.display.update()
+        screen.fill(PRETO) # limpa tela
+        pacman.pintar(screen) # desenha o pacman na tela
+        pygame.display.update() # atualiza
+        pygame.time.delay(100)
+
+        # Capturar os eventos
 
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
